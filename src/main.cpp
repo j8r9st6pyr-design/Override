@@ -5,7 +5,8 @@
 #include "main.h"
 #include "liblvgl/lvgl.h"
 
-int auton_select = 0;
+int auton_select = 0; //used during initialization to let the user select an autonomous
+int round = 0; // used to make the robot check if it is close to an object every half a second
 
 static void btnm_event_cb(lv_event_t * e) {
     lv_obj_t * obj = (lv_obj_t *)lv_event_get_target(e);
@@ -188,6 +189,15 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
+void sense_distance(int go) {
+  // Sense the distance using the distance sensor
+  if (go == 20) {
+  if (distance_sensor.get() < 20) {
+    clamp(true);
+    round = 0;
+  }
+}
+}
 void raise_level(int amount, int goal = 0){
   if (amount < 0) {
     amount = -amount;
@@ -285,9 +295,11 @@ void Match_autonomous_Right() {
   raise_level(1);
   clamp(false);
   chassis.moveToPoint(9, 6, 1000, {.forwards = false});
+  raise_level(0,0); // lower lift
   chassis.turnToPoint(12, 0, 1000, {.forwards = false});
   chassis.moveToPoint(12, 0, 1000, {.forwards = false});
   // pick pin and holder
+  clamp(true);
   chassis.moveToPoint(12, 12, 1000);
   // place pin and holder
   chassis.moveToPoint(14, 8, 1000, {.forwards = false});
@@ -389,7 +401,8 @@ void opcontrol() {
 
         // move the robot
         chassis.arcade(leftY, rightX);
-        
+        round++;
+        sense_distance(round);
         if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
           lift.move(127);
         }
