@@ -207,6 +207,9 @@ else if (amount = 0){
   else if (goal == 2) {
     height = 150; // neutral goals
   }
+  else if (goal == 0) {
+    height = 10; // floor
+  } 
   else {
     height = 225; // center goal
   }
@@ -255,9 +258,7 @@ void Match_autonomous_Right() {
   pros::delay(400);
   clamp(false);
   chassis.moveToPoint(-9, 12, 1000, {.forwards = false});
-  lift.move(-127);
-  pros::delay(300);
-  lift.move(0);
+  raise_level(0,0);
   chassis.moveToPoint(-10, 6, 1000);
   chassis.moveToPoint(-10, 0, 1000, {.forwards = false});
   chassis.turnToPoint(-12, 0, 1000);
@@ -266,14 +267,12 @@ void Match_autonomous_Right() {
   chassis.turnToPoint(-12, 12, 1000);
   chassis.moveToPoint(-12, 12, 1000);
   pros::delay(300);
-  lift.move(127); // raise lift
-  pros::delay(850);
-  lift.move(0);
+  raise_level(0,2); // raise lift
+  raise_level(1);
   clamp(false);
   chassis.moveToPoint(-12, 9, 1000);
-  lift.move(-127); // lower lift
+  raise_level(0,0); // lower lift
   pros::delay(300);
-  lift.move(0);
   chassis.moveToPoint(-14, 6, 750);
   chassis.moveToPoint(-7, 6, 1000);
   chassis.moveToPoint(0, 24, 1000);
@@ -353,7 +352,9 @@ chassis.setPose(0,0,0);
 void Skills_auton(){
 
 }
+
 void autonomous(){
+
 pros::delay(1000);
 if (auton_select == 0){
   Skills_auton();
