@@ -8,6 +8,9 @@
 int auton_select = 0; //used during initialization to let the user select an autonomous
 int round = 0; // used to make the robot check if it is close to an object every half a second
 
+/*
+for this next part, this is used to create buttons on the brain's screen to allow the user to select an autonomous.
+*/
 static void btnm_event_cb(lv_event_t * e) {
     lv_obj_t * obj = (lv_obj_t *)lv_event_get_target(e);
     if(lv_event_get_code(e) == LV_EVENT_VALUE_CHANGED) {
@@ -26,6 +29,10 @@ static void btnm_event_cb(lv_event_t * e) {
         }
     }
 }
+
+/*
+creates the motors and drivetrain code
+*/
 
 	pros::Controller controller(pros::E_CONTROLLER_MASTER);
   //left side motors
