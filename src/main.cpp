@@ -277,12 +277,13 @@ void Match_autonomous_Right() {
   chassis.moveToPoint(-7, 6, 1000);
   chassis.moveToPoint(0, 24, 1000);
   clamp(true);
-  //pick pin and holder
   chassis.turnToPoint(0, 12, 1000);
   chassis.moveToPoint(0, 12, 1000, {.forwards = false});
   pros::delay(500);
   chassis.moveToPoint(12, 12, 1000);
-  //place pin and holder
+  raise_level(0,2); // raise lift
+  raise_level(1);
+  clamp(false);
   chassis.moveToPoint(9, 6, 1000, {.forwards = false});
   chassis.turnToPoint(12, 0, 1000, {.forwards = false});
   chassis.moveToPoint(12, 0, 1000, {.forwards = false});
