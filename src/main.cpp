@@ -6,7 +6,6 @@
 #include "liblvgl/lvgl.h"
 
 int auton_select = 0; //used during initialization to let the user select an autonomous
-int round = 0; // used to make the robot check if it is close to an object every half a second
 
 /*
 for this next part, this is used to create buttons on the brain's screen to allow the user to select an autonomous.
@@ -196,14 +195,11 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void sense_distance(int go) {
+void sense_distance() {
   // Sense the distance using the distance sensor
-  if (go == 20) {
   if (distance_sensor.get() < 20) {
     clamp(true);
-    round = 0;
   }
-}
 }
 void raise_level(int amount, int goal = 0){
   if (amount < 0) {
@@ -408,8 +404,9 @@ void opcontrol() {
 
         // move the robot
         chassis.arcade(leftY, rightX);
-        round++;
-        sense_distance(round);
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)) 
+        sense_distance();
+        }
         if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
           lift.move(127);
         }
@@ -434,4 +431,3 @@ void opcontrol() {
         // delay to save resources
         pros::delay(25);
     }
-}
