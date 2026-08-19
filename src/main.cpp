@@ -35,16 +35,16 @@ creates the motors and drivetrain code
 
 	pros::Controller controller(pros::E_CONTROLLER_MASTER);
   //left side motors
-  pros::Motor Left_Half({-3}, pros::MotorGearset::red);
-  pros::Motor Left_front({-4}, pros::MotorGearset::blue);
-  pros::Motor left_back({-2}, pros::MotorGearset::blue);
+  pros::Motor Left_Half({-9}, pros::MotorGearset::green);
+  pros::Motor Left_front({-7}, pros::MotorGearset::blue);
+  pros::Motor left_back({-8}, pros::MotorGearset::blue);
   //right side motors
   pros::Motor Right_Half({7}, pros::MotorGearset::blue);
   pros::Motor Right_front({6}, pros::MotorGearset::blue);
   pros::Motor right_back({8}, pros::MotorGearset::blue);
 	pros::MotorGroup left_mg({-2, -3, -4});    // Creates a motor group with forwards ports 1 & 3 and reversed port 2
 	pros::MotorGroup right_mg({6, 7, 8});  // Creates a motor group with forwards port 5 and reversed ports 4 & 6
-  pros::MotorGroup lift{(-1, 10)};
+  pros::MotorGroup lift{(11, -15)};
   pros::adi::Pneumatics claw('A', true);
 
 // drivetrain settings
