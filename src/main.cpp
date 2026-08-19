@@ -45,7 +45,7 @@ creates the motors and drivetrain code
 	pros::MotorGroup left_mg({-2, -3, -4});    // Creates a motor group with forwards ports 1 & 3 and reversed port 2
 	pros::MotorGroup right_mg({6, 7, 8});  // Creates a motor group with forwards port 5 and reversed ports 4 & 6
   pros::MotorGroup lift{(11, -15)};
-  pros::adi::Pneumatics claw('A', true);
+//  pros::adi::Pneumatics claw('A', true);
 
 // drivetrain settings
 
@@ -81,22 +81,22 @@ lemlib::OdomSensors sensors(nullptr, // vertical tracking wheel 1, set to null
 );
 
 // lateral PID controller
-lemlib::ControllerSettings lateral_controller(10, // proportional gain (kP)
+lemlib::ControllerSettings lateral_controller(1, // proportional gain (kP)
                                               0, // integral gain (kI)
-                                              3, // derivative gain (kD)
-                                              3, // anti windup
+                                              0, // derivative gain (kD)
+                                              0, // anti windup
                                               1, // small error range, in inches
                                               100, // small error range timeout, in milliseconds
                                               3, // large error range, in inches
                                               500, // large error range timeout, in milliseconds
-                                              20 // maximum acceleration (slew)
+                                              0 // maximum acceleration (slew)
 );
 
 // angular PID controller
-lemlib::ControllerSettings angular_controller(2, // proportional gain (kP)
+lemlib::ControllerSettings angular_controller(1, // proportional gain (kP)
                                               0, // integral gain (kI)
-                                              10, // derivative gain (kD)
-                                              3, // anti windup
+                                              0, // derivative gain (kD)
+                                              0, // anti windup
                                               1, // small error range, in degrees
                                               100, // small error range timeout, in milliseconds
                                               3, // large error range, in degrees
@@ -198,62 +198,12 @@ void competition_initialize() {}
 void sense_distance() {
   // Sense the distance using the distance sensor
   if (distance_sensor.get() < 20) {
-    clamp(true);
+     //claw.extend();
   }
 }
-void raise_level(int amount, int goal = 0){
-  if (amount < 0) {
-    amount = -amount;
-    for (int i = 0; i < amount; i++) {
-      int id = distance_sensor.get();
-    while (distance_sensor.get() > id - 334) {
-      lift.move(-127); // lower lift
-      pros::delay(10);
-    }
-  }
-}
-else if (amount = 0){
-  int height = 0;
-  if (goal == 1){ //alliance specific goals
-    height = 88;
-  }
-  else if (goal == 2) {
-    height = 150; // neutral goals
-  }
-  else if (goal == 0) {
-    height = 10; // floor
-  } 
-  else {
-    height = 225; // center goal
-  }
-  while (distance_sensor.get() <= height + 1 && distance_sensor.get() >= height - 1){
-  if (distance_sensor.get() < height) {
- lift.move(127); // raise lift
-  }
-  else if (distance_sensor.get() > height) {
-    lift.move(-127); // lower lift
-  }
-  pros::delay(10);
-
-  for (int i = 0; i < amount; i++) {
-    int id = distance_sensor.get();
-    while (distance_sensor.get() < id + 334) {
-    lift.move(127); // raise lift
-    pros::delay(10);
-    }
-  }
-}
-    lift.move(0);
-  }
-}
-
-void clamp(bool state){
-  if (state) {
-    claw.extend();
-  }
-  else{
-    claw.retract();
-  }
+void tune(){
+chassis.setPose(0,0,0);
+chassis.turnToHeading(90, 10000);
 }
 void Match_autonomous_Right() {
   chassis.setPose(0,0,0);
@@ -266,43 +216,40 @@ void Match_autonomous_Right() {
   pros::delay(350);
   lift.move(0);
   chassis.moveToPoint(-12, 12, 1000);
-  raise_level(0, 2);
-  raise_level(1);
+  //lift
   pros::delay(400);
-  clamp(false);
+//claw
   chassis.moveToPoint(-9, 12, 1000, {.forwards = false});
-  raise_level(0,0);
+  //lift
   chassis.moveToPoint(-10, 6, 1000);
   chassis.moveToPoint(-10, 0, 1000, {.forwards = false});
   chassis.turnToPoint(-12, 0, 1000);
   chassis.moveToPoint(-12, 0, 1000);
-  clamp(true);
+//claw
   chassis.turnToPoint(-12, 12, 1000);
   chassis.moveToPoint(-12, 12, 1000);
   pros::delay(300);
-  raise_level(0,2); // raise lift
-  raise_level(1);
-  clamp(false);
+//lift
+//claw
   chassis.moveToPoint(-12, 9, 1000);
-  raise_level(0,0); // lower lift
+  // lower lift
   pros::delay(300);
   chassis.moveToPoint(-14, 6, 750);
   chassis.moveToPoint(-7, 6, 1000);
   chassis.moveToPoint(0, 24, 1000);
-  clamp(true);
+//claw
   chassis.turnToPoint(0, 12, 1000);
   chassis.moveToPoint(0, 12, 1000, {.forwards = false});
   pros::delay(500);
   chassis.moveToPoint(12, 12, 1000);
-  raise_level(0,2); // raise lift
-  raise_level(1);
-  clamp(false);
+ // raise lift
+//claw
   chassis.moveToPoint(9, 6, 1000, {.forwards = false});
-  raise_level(0,0); // lower lift
+// lower lift
   chassis.turnToPoint(12, 0, 1000, {.forwards = false});
   chassis.moveToPoint(12, 0, 1000, {.forwards = false});
   // pick pin and holder
-  clamp(true);
+    //claw.extend();
   chassis.moveToPoint(12, 12, 1000);
   // place pin and holder
   chassis.moveToPoint(14, 8, 1000, {.forwards = false});
@@ -373,7 +320,8 @@ void autonomous(){
 
 pros::delay(1000);
 if (auton_select == 0){
-  Skills_auton();
+  //Skills_auton();
+  tune();
 }
 else if (auton_select == 1){
   Match_autonomous_Right();
@@ -417,17 +365,17 @@ void opcontrol() {
           lift.brake();
         }
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-          raise_level(1);
+         //lift
         }
         else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
-          raise_level(-1);
-        }
+          //lift     }
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-          claw.extend();
+          //claw.extend();
         }
         else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-          claw.retract();
+          //claw.retract();
         }
         // delay to save resources
         pros::delay(25);
     }
+  }
