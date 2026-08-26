@@ -194,9 +194,10 @@ void sense_distance() {
      //claw.extend();
   }
 }
+
 void tune(){
-chassis.setPose(0,0,0);
-chassis.turnToHeading(90, 10000);
+  chassis.setPose(0,0,0);
+  chassis.turnToHeading(90, 10000);
 }
 void Match_autonomous_Right() {
   chassis.setPose(0,0,0);
