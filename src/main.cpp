@@ -9,25 +9,25 @@ int auton_select = 0; //used during initialization to let the user select an aut
 
 /*
 for this next part, this is used to create buttons on the brain's screen to allow the user to select an autonomous.
-*/
-static void btnm_event_cb(lv_event_t * e) {
-    lv_obj_t * obj = (lv_obj_t *)lv_event_get_target(e);
-    if(lv_event_get_code(e) == LV_EVENT_VALUE_CHANGED) {
-        uint32_t id = lv_buttonmatrix_get_selected_button(obj);
-        const char * txt = lv_buttonmatrix_get_button_text(obj, id);
+ */
+// static void btnm_event_cb(lv_event_t * e) {
+//     lv_obj_t * obj = (lv_obj_t *)lv_event_get_target(e);
+//     if(lv_event_get_code(e) == LV_EVENT_VALUE_CHANGED) {
+//         uint32_t id = lv_buttonmatrix_get_selected_button(obj);
+//         const char * txt = lv_buttonmatrix_get_button_text(obj, id);
 
-        printf("Pressed: %s\n", txt);
-        if (txt && strcmp(txt, "Left") == 0) {
-          auton_select = 1;
-        }
-        else if (txt && strcmp(txt, "Right") == 0) {
-            auton_select = 2;
-        }
-        else if (txt && strcmp(txt, "Skills")){
-          auton_select = 0;
-        }
-    }
-}
+//         printf("Pressed: %s\n", txt);
+//         if (txt && strcmp(txt, "Left") == 0) {
+//           auton_select = 1;
+//         }
+//         else if (txt && strcmp(txt, "Right") == 0) {
+//             auton_select = 2;
+//         }
+//         else if (txt && strcmp(txt, "Skills")){
+//           auton_select = 0;
+//         }
+//     }
+// }
 
 /*
 creates the motors and drivetrain code
@@ -38,9 +38,9 @@ creates the motors and drivetrain code
 
 	pros::MotorGroup left_mg({-2, -3, -4},pros::MotorGearset::blue);    // Creates a motor group with forwards ports 1 & 3 and reversed port 2
 	pros::MotorGroup right_mg({6, 7, 8},pros::MotorGearset::blue);  // Creates a motor group with forwards port 5 and reversed ports 4 & 6
-  pros::MotorGroup lift({11, -15}, pros::MotorGearset::blue);
+  pros::MotorGroup lift({-1, 10}, pros::MotorGearset::blue);
 
-
+    pros::adi::Pneumatics claw('A', true);
 // drivetrain settings
 
 lemlib::Drivetrain drivetrain(&left_mg, // left motor group
@@ -53,7 +53,7 @@ lemlib::Drivetrain drivetrain(&left_mg, // left motor group
 
 // imu
 pros::Imu imu(5);
-pros::Distance distance_sensor(2);
+pros::Distance distance_sensor(6);
 // horizontal tracking wheel encoder
 pros::Rotation horizontal_encoder(20);
 
@@ -75,7 +75,7 @@ lemlib::OdomSensors sensors(nullptr, // vertical tracking wheel 1, set to null
 );
 
 // lateral PID controller
-lemlib::ControllerSettings lateral_controller(1, // proportional gain (kP)
+lemlib::ControllerSettings lateral_controller(7, // proportional gain (kP)`
                                               0, // integral gain (kI)
                                               0, // derivative gain (kD)
                                               0, // anti windup
@@ -87,13 +87,13 @@ lemlib::ControllerSettings lateral_controller(1, // proportional gain (kP)
 );
 
 // angular PID controller
-lemlib::ControllerSettings angular_controller(1, // proportional gain (kP)
+lemlib::ControllerSettings angular_controller(1.7, // proportional gain (kP)
                                               0, // integral gain (kI)
-                                              0, // derivative gain (kD)
+                                              7, // derivative gain (kD)
                                               0, // anti windup
                                               1, // small error range, in degrees
                                               100, // small error range timeout, in milliseconds
-                                              3, // large error range, in degrees
+                                              2, // large error range, in degrees
                                               500, // large error range timeout, in milliseconds
                                               0 // maximum acceleration (slew)
 );
@@ -126,37 +126,37 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 
-static const char * btn_map[] = {
-    "Left ", "Right", "\n",
-    "Skills", "\n",
-    ""
-};
+// static const char * btn_map[] = {
+//     "Left ", "Right", "\n",
+//     "Skills", "\n",
+//     ""
+// };
 
-lv_obj_t * btnm;
-  void lvgl_task(void *param) {
-    while(true) {
-        lv_timer_handler();   // processes button presses + events
-        pros::delay(5);
-    }
-}
+// lv_obj_t * btnm;
+//   void lvgl_task(void *param) {
+//     while(true) {
+//         lv_timer_handler();   // processes button presses + events
+//         pros::delay(5);
+//     }
+// }
 void initialize() {
+  chassis.calibrate();
+    // btnm = lv_buttonmatrix_create(lv_screen_active());
+    // lv_buttonmatrix_set_map(btnm, btn_map);
 
-    btnm = lv_buttonmatrix_create(lv_screen_active());
-    lv_buttonmatrix_set_map(btnm, btn_map);
+    // lv_obj_set_size(btnm, 300, 150);
+    // lv_obj_center(btnm);
+    // lv_obj_set_y(btnm, -60);
+    // lv_obj_add_event_cb(btnm, btnm_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+    // pros::Task lvglTask(lvgl_task);
 
-    lv_obj_set_size(btnm, 300, 150);
-    lv_obj_center(btnm);
-    lv_obj_set_y(btnm, -60);
-    lv_obj_add_event_cb(btnm, btnm_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-    pros::Task lvglTask(lvgl_task);
-
-    auto& logger = mvlib::Logger::getInstance();
-  mvlib::setOdom(&chassis);
-  logger.setRobot({
-  .leftDrivetrain = &left_mg,
-  .rightDrivetrain = &right_mg
-});
-  logger.start();
+//     auto& logger = mvlib::Logger::getInstance();
+//   mvlib::setOdom(&chassis);
+//   logger.setRobot({
+//   .leftDrivetrain = &left_mg,
+//   .rightDrivetrain = &right_mg
+// });
+//   logger.start();
 }
 
 /**
@@ -190,14 +190,14 @@ void competition_initialize() {}
  */
 void sense_distance() {
   // Sense the distance using the distance sensor
-  if (distance_sensor.get() < 20) {
-     //claw.extend();
+  if (distance_sensor.get() < 50) {
+     claw.retract();
   }
 }
 
 void tune(){
-  chassis.setPose(0,0,0);
-  chassis.turnToHeading(90, 10000);
+  chassis.setPose(0,0,90);
+  chassis.moveToPoint(24, 1, 10000);
 }
 void Match_autonomous_Right() {
   chassis.setPose(0,0,0);
@@ -339,7 +339,7 @@ else if (auton_select == 2){
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-    pros::adi::Pneumatics claw('A', true);
+
       while (true) {
 
         // get left y and right x positions
@@ -347,8 +347,8 @@ void opcontrol() {
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 
         // move the robot
-        chassis.arcade(leftY, rightX);
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)) 
+        chassis.arcade(-leftY, -rightX);
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
         sense_distance();
         }
         if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
@@ -360,12 +360,6 @@ void opcontrol() {
         else{
           lift.brake();
         }
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-         //lift
-        }
-        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
-          //lift    
-           }
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
           claw.extend();
         }
@@ -375,3 +369,4 @@ void opcontrol() {
         // delay to save resources
         pros::delay(25);
     }
+  }
