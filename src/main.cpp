@@ -190,7 +190,7 @@ void competition_initialize() {}
  */
 void sense_distance() {
   // Sense the distance using the distance sensor
-  if (distance_sensor.get() < 50) {
+  if (distance_sensor.get() < 40) {
      claw.retract();
   }
 }
@@ -347,7 +347,7 @@ void opcontrol() {
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 
         // move the robot
-        chassis.arcade(-leftY, -rightX);
+        chassis.arcade(-leftY, rightX);
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
         sense_distance();
         }
